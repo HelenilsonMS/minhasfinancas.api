@@ -1,5 +1,7 @@
 package com.hms.minhasfinancas.service;
 
+import java.util.Optional;
+
 import com.hms.minhasfinancas.model.entity.Usuario;
 
 public interface UsuarioService {
@@ -10,5 +12,7 @@ public interface UsuarioService {
 
 	Usuario salvarUsuario(Usuario usuario);
 	
+	Optional<Usuario> obtUsuario(Long id);
 
 }
+

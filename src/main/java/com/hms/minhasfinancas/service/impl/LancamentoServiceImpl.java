@@ -3,7 +3,9 @@ package com.hms.minhasfinancas.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+import org.hibernate.type.TrueFalseType;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hms.minhasfinancas.exception.RegraNegocioException;
 import com.hms.minhasfinancas.model.entity.Lancamento;
 import com.hms.minhasfinancas.model.enums.StatusLancamento;
+import com.hms.minhasfinancas.model.enums.TipoLancamento;
 import com.hms.minhasfinancas.model.repository.LancamentoRepository;
 import com.hms.minhasfinancas.service.LancamentoService;
 
@@ -68,6 +71,8 @@ public class LancamentoServiceImpl implements LancamentoService{
 	
 		
 	}
+	
+	
 
 	@Override
 	public void validar(Lancamento lancamento) {
@@ -95,6 +100,29 @@ public class LancamentoServiceImpl implements LancamentoService{
 		if(lancamento.getTipo() == null) {
 			throw new RegraNegocioException("Informe um tipo de Lançamento.");
 		}
+	}
+
+	@Override
+	public Optional<Lancamento> obterPorId(Long id) {
+		return repository.findById(id);
+
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal obterSaldoPorUsuario(Long id) {
+		
+		BigDecimal receitas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+		BigDecimal despedas = repository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+		
+		if(receitas == null) {
+			receitas = BigDecimal.ZERO;
+		}
+		if(despedas == null) {
+			despedas = BigDecimal.ZERO;
+		}
+		
+		return receitas.subtract(despedas);
 	}
 
 }
